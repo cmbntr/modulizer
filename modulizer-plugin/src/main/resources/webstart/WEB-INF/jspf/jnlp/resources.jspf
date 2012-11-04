@@ -1,0 +1,5 @@
+<%-- resources.jspf --%><%@ page pageEncoding="UTF-8" %>
+<%@ include file="resources_def.jspf" %>
+<%for(String resource : resources) {%>
+<%@ include file="resource.jspf" %>
+<%}%>

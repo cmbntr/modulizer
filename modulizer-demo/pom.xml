@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <parent>
+    <groupId>ch.cmbntr</groupId>
+    <artifactId>cmbntr-oss-parent</artifactId>
+    <version>1</version>
+    <relativePath />
+  </parent>
+
+  <modelVersion>4.0.0</modelVersion>
+
+  <artifactId>modulizer-demo</artifactId>
+  <version>1.0.0-SNAPSHOT</version>
+
+  <name>modulizer demo</name>
+  <description>modulizer demo app</description>
+
+  <properties>
+    <sign.alias>thekey</sign.alias>
+    <sign.storepass>s3KreT</sign.storepass>
+    <sign.keystore>${basedir}/src/main/demo_keystore.p12</sign.keystore>
+  </properties>
+
+  <build>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>ch.cmbntr</groupId>
+          <artifactId>modulizer-plugin</artifactId>
+          <version>0.9.0-SNAPSHOT</version>
+          <configuration>
+            <verbose>false</verbose>
+            <includeModulesInLauncher>true</includeModulesInLauncher>
+            <signing>
+              <alias>${sign.alias}</alias>
+              <keystore>${sign.keystore}</keystore>
+              <storepass>${sign.storepass}</storepass>
+              <signRequestProperties>
+                <property>
+                  <name>sigfile</name>
+                  <value>DEMO</value>
+                </property>
+              </signRequestProperties>
+            </signing>
+            <webstart>
+              <overlay>${basedir}/src/main/webstart</overlay>
+              <jnlpFile>demo.jnlp</jnlpFile>
+              <resourcesPath>resources</resourcesPath>
+              <classifierName>webstart</classifierName>
+            </webstart>
+            <bootstrapContext>
+              <property>
+                <name>modulizer.bootstrap.app.id</name>
+                <value>demoApp</value>
+              </property>
+              <property>
+                <name>modulizer.bootstrap.app.dir.slot</name>
+                <value>${project.version}</value>
+              </property>
+              <property>
+                <name>modulizer.filetree.bundle.uri</name>
+                <value>///demo.modules</value>
+              </property>
+              <property>
+                <name>modulizer.filetree.bundle.ref</name>
+                <value>shipped</value>
+              </property>
+              <property>
+                <name>modulizer.filetree.ignore-existing</name>
+                <value>false</value>
+              </property>
+              <property>
+                <name>modulizer.logging</name>
+                <value>app.dir</value>
+              </property>
+            </bootstrapContext>
+            <mainModule>demo</mainModule>
+            <modules>
+              <module>
+                <name>demo</name>
+                <mainClass>modulizer.demo.Main</mainClass>
+                <moduleResources>
+                  <excludes>
+                    <exclude>org.slf4j</exclude>
+                    <exclude>ch.qos.logback</exclude>
+                  </excludes>
+                </moduleResources>
+                <dependencies>
+                  <moduleDependency>
+                    <name>javax.api</name>
+                  </moduleDependency>
+                  <moduleDependency>
+                    <name>logging</name>
+                  </moduleDependency>
+                </dependencies>
+              </module>
+              <module>
+                <name>logging</name>
+                <moduleResources>
+                  <includes>
+                    <include>org.slf4j</include>
+                    <include>ch.qos.logback</include>
+                  </includes>
+                </moduleResources>
+                <dependencies>
+                  <moduleDependency>
+                    <name>javax.api</name>
+                  </moduleDependency>
+                </dependencies>
+              </module>
+            </modules>
+          </configuration>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+
+    <plugins>
+      <plugin>
+        <groupId>ch.cmbntr</groupId>
+        <artifactId>modulizer-plugin</artifactId>
+        <executions>
+          <execution>
+            <goals>
+              <goal>modulize</goal>
+            </goals>
+            <configuration>
+              <verbose>true</verbose>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.jboss.modules</groupId>
+      <artifactId>jboss-modules</artifactId>
+      <version>1.1.3.GA</version>
+      <scope>runtime</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+      <version>1.6.4</version>
+    </dependency>
+    <dependency>
+      <groupId>ch.qos.logback</groupId>
+      <artifactId>logback-classic</artifactId>
+      <version>1.0.0</version>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>ch.qos.logback</groupId>
+      <artifactId>logback-core</artifactId>
+      <version>1.0.0</version>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-lang3</artifactId>
+      <version>3.1</version>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.miglayout</groupId>
+      <artifactId>miglayout-swing</artifactId>
+      <version>4.2</version>
+    </dependency>
+  </dependencies>
+
+</project>

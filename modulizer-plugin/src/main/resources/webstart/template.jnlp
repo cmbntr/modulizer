@@ -1,0 +1,23 @@
+<%@ page contentType="application/x-java-jnlp-file" pageEncoding="UTF-8" session="false" %><%
+
+String scheme = request.isSecure() ? "https" : "http";
+String host   = request.getHeader("Host");
+String ctxt   = request.getContextPath();
+String file   = request.getServletPath().substring(1);
+
+java.util.Map<String, String[]> params = request.getParameterMap();
+
+long now = System.currentTimeMillis();
+response.setDateHeader("Date", now);
+response.setDateHeader("Last-Modified", now);
+response.setDateHeader("Expires", 0);
+response.setHeader("Cache-Control", "must-revalidate"); 
+response.setHeader("Pragma", "no-cache");
+
+String basename = file.substring(file.lastIndexOf("/") + 1 );
+response.setHeader("Content-Disposition", "inline;filename=" + basename);
+
+%><?xml version="1.0" encoding="utf-8"?>
+<jnlp spec="6.0+" codebase="<%=scheme%>://<%=host%><%=ctxt%>/" href="<%=file%>" >
+<%@ include file="/WEB-INF/jspf/jnlp/body.jspf" %>
+</jnlp>
