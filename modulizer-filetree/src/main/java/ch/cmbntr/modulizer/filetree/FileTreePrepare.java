@@ -3,6 +3,7 @@ package ch.cmbntr.modulizer.filetree;
 import static ch.cmbntr.modulizer.bootstrap.util.Resources.submit;
 import static ch.cmbntr.modulizer.filetree.FileTreeUtil.isTimestampDir;
 import static ch.cmbntr.modulizer.filetree.FileTreeUtil.timestamp;
+import static ch.cmbntr.modulizer.filetree.FileTreeUtil.timestampDirs;
 
 import java.io.File;
 import java.io.IOException;
@@ -82,7 +83,7 @@ public class FileTreePrepare extends AbstractPrepare {
     if (!baseDir.isDirectory()) {
       return null;
     }
-    final String[] contents = baseDir.list();
+    final String[] contents = baseDir.list(timestampDirs());
     if (contents == null || contents.length == 0) {
       return null;
     }

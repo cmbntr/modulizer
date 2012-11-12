@@ -77,7 +77,7 @@ public class BasicBootstrap extends AbstractOperation implements Bootstrap {
   private void initializeLogging() {
     String loggingConfig = lookupContext(BootstrapContext.CONFIG_KEY_LOGGING);
     if ("app.dir".equals(loggingConfig)) {
-      loggingConfig = "file:" + lookupContext(BootstrapContext.CONFIG_KEY_APP_DIR) + "/.bootstrap.log";
+      loggingConfig = "file:" + lookupContext(BootstrapContext.CONFIG_KEY_APP_DIR) + "/bootstrap.log";
     }
     initLogging(loggingConfig);
   }

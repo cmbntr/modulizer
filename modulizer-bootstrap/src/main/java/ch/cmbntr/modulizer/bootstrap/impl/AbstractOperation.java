@@ -33,7 +33,7 @@ public abstract class AbstractOperation implements Operation {
   }
 
   protected static Future<ClassLoader> pluginLoaderViaSpecKey(final Pool pool, final String pluginSpecKey) {
-    final File pluginDir = new File(lookupContext(BootstrapContext.CONFIG_KEY_APP_DIR), ".bootstrap_plugins");
+    final File pluginDir = new File(lookupContext(BootstrapContext.CONFIG_KEY_APP_DIR), "bootstrap_plugins");
     return submit(pool, PluginLoader.create(pluginDir, lookupContext(pluginSpecKey)));
   }
 
