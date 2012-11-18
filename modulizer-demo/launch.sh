@@ -2,7 +2,7 @@
 
 L=target/modulizer-demo-1.0.0-SNAPSHOT-launcher.jar
 
-OPTS="-DNOmodulizer.logging=file:modulizer.log|socket://localhost:7777"
+OPTS="-DNOmodulizer.logging=file:modulizer.log|socket://localhost:7777 -Dlogging.level=WARN"
 
 case "$OSTYPE" in
   cygwin*)
