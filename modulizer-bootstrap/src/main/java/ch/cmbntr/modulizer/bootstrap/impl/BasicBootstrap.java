@@ -8,6 +8,7 @@ import static java.lang.Boolean.parseBoolean;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.management.ManagementFactory;
 import java.util.InvalidPropertiesFormatException;
 import java.util.UUID;
 import java.util.concurrent.Future;
@@ -37,6 +38,7 @@ public class BasicBootstrap extends AbstractOperation implements Bootstrap {
 
       prepare(prepareLoader);
       launch(launchLoader);
+      scheduleGC();
     } finally {
       clearContext();
       Resources.dispose(handle);
@@ -123,6 +125,23 @@ public class BasicBootstrap extends AbstractOperation implements Bootstrap {
 
   private void launch(final Future<ClassLoader> loader) {
     invokePluginOperations(Launch.class, loader);
+  }
+
+  private void scheduleGC() {
+    final String val = lookupContext(BootstrapContext.CONFIG_KEY_GC_DELAY);
+    final long delay = val == null ? BootstrapContext.DEFAULT_GC_DELAY_MS : Long.parseLong(val);
+    delayedGC(delay);
+  }
+
+  private static void delayedGC(final long delay) {
+    if (delay >= 0) {
+      Resources.delay(delay, new Runnable() {
+        @Override
+        public void run() {
+          ManagementFactory.getMemoryMXBean().gc();
+        }
+      });
+    }
   }
 
   private void clearContext() {

@@ -6,8 +6,6 @@ import static ch.cmbntr.modulizer.bootstrap.util.ModulizerLog.log;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
 
-import java.lang.management.ManagementFactory;
-
 public class Main {
 
   private static final long STARTUP_NANOS = System.nanoTime();
@@ -23,7 +21,6 @@ public class Main {
     } finally {
       BootstrapContext.ARGS.set(null);
       log("bootstrap time: %dms", MILLISECONDS.convert(System.nanoTime() - STARTUP_NANOS, NANOSECONDS));
-      ManagementFactory.getMemoryMXBean().gc();
     }
   }
 }

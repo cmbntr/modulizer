@@ -17,6 +17,8 @@ public interface BootstrapContext extends Map<String, String> {
 
   public static final String CONFIG_KEY_BASE_DIR = "modulizer.bootstrap.base.dir";
 
+  public static final String CONFIG_KEY_GC_DELAY = "modulizer.bootstrap.gc.delay-ms";
+
   public static final String CONFIG_KEY_SECURITY_SKIP = "modulizer.bootstrap.security.skip";
 
   public static final String CONFIG_KEY_LAUNCH_PLUGINS = "modulizer.bootstrap.launch.plugins";
@@ -38,6 +40,8 @@ public interface BootstrapContext extends Map<String, String> {
   public static final String DEFAULT_KEY_BUNDLE_REF = "refs/heads/master";
 
   public static final String DEFAULT_KEY_BUNDLE_URI = "/filetree.dat";
+
+  public static final long DEFAULT_GC_DELAY_MS = 8000L;
 
   public static final AtomicReference<String[]> ARGS = new AtomicReference<String[]>();
 
