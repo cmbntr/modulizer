@@ -10,6 +10,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
+import java.util.concurrent.ScheduledExecutorService;
 
 import org.apache.maven.plugin.MojoExecutionException;
 import org.codehaus.plexus.util.FileUtils;
@@ -69,7 +70,7 @@ public class ModulizerUtil {
 
   private static <F, T> Map<F, Future<T>> submitCompute(final Iterable<F> items, final Function<? super F, T> f) {
     final Pool pool = Resources.getPoolHandle();
-    final ExecutorService exec = pool.aquireBlockableExec();
+    final ScheduledExecutorService exec = pool.aquireBlockableExec();
     try {
       final ImmutableMap.Builder<F, Future<T>> submits = ImmutableMap.builder();
       for (final F i : items) {

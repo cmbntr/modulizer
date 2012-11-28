@@ -12,10 +12,12 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -62,9 +64,9 @@ public class Resources {
 
     public void releaseExec(ExecutorService svc);
 
-    public ExecutorService aquireBlockableExec();
+    public ScheduledExecutorService aquireBlockableExec();
 
-    public void releaseBlockableExec(ExecutorService svc);
+    public void releaseBlockableExec(ScheduledExecutorService svc);
 
     public ByteBuffer aquireBuffer();
 
@@ -88,7 +90,7 @@ public class Resources {
 
     private ThreadPoolExecutor exec;
 
-    private ThreadPoolExecutor blockableExec;
+    private ScheduledThreadPoolExecutor blockableExec;
 
     private static ThreadPoolExecutor buildNonBlockableExecutor() {
       final BlockingQueue<Runnable> workQueue = new LinkedBlockingQueue<Runnable>();
@@ -99,9 +101,11 @@ public class Resources {
       return tpe;
     }
 
-    private static ThreadPoolExecutor buildBlockableExecutor() {
-      return new ThreadPoolExecutor(0, Integer.MAX_VALUE, 15L, TimeUnit.SECONDS, new SynchronousQueue<Runnable>(),
-          THREAD_FACTORY);
+    private static ScheduledThreadPoolExecutor buildBlockableExecutor() {
+      final ScheduledThreadPoolExecutor stpe = new ScheduledThreadPoolExecutor(POOL_SIZE, THREAD_FACTORY);
+      stpe.setKeepAliveTime(15L, TimeUnit.SECONDS);
+      stpe.allowCoreThreadTimeOut(true);
+      return stpe;
     }
 
     private synchronized void dispose() {
@@ -120,7 +124,7 @@ public class Resources {
       if (this.exec == null) {
         this.exec = buildNonBlockableExecutor();
       }
-      return this.exec;
+      return Executors.unconfigurableExecutorService(this.exec);
     }
 
     @Override
@@ -129,15 +133,15 @@ public class Resources {
     }
 
     @Override
-    public synchronized ExecutorService aquireBlockableExec() {
+    public synchronized ScheduledExecutorService aquireBlockableExec() {
       if (this.blockableExec == null) {
         this.blockableExec = buildBlockableExecutor();
       }
-      return this.blockableExec;
+      return Executors.unconfigurableScheduledExecutorService(this.blockableExec);
     }
 
     @Override
-    public void releaseBlockableExec(final ExecutorService svc) {
+    public void releaseBlockableExec(final ScheduledExecutorService svc) {
       // no op
     }
 
@@ -195,6 +199,19 @@ public class Resources {
       return e == null ? "NA" : e.getActiveCount() + "/" + e.getLargestPoolSize();
     }
 
+  }
+
+  public static void delay(long millisDelay, final Runnable work) {
+    delay(millisDelay, getPoolHandle(), work);
+  }
+
+  public static void delay(long millisDelay, final Pool pool, final Runnable work) {
+    final ScheduledExecutorService exec = pool.aquireBlockableExec();
+    try {
+      exec.schedule(work, millisDelay, TimeUnit.MILLISECONDS);
+    } finally {
+      pool.releaseBlockableExec(exec);
+    }
   }
 
   public static <T> Future<T> submit(final Callable<T> work) {
