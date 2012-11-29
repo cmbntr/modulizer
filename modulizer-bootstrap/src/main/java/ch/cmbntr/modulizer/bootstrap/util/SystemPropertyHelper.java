@@ -1,9 +1,6 @@
 package ch.cmbntr.modulizer.bootstrap.util;
 
-
 import java.util.Properties;
-
-
 
 public class SystemPropertyHelper {
 

@@ -12,8 +12,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
-import ch.cmbntr.modulizer.bootstrap.util.ModulizerIO;
-
 public class ModulizerIOTest {
 
   @Rule

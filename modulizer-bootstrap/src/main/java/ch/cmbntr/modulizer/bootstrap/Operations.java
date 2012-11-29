@@ -33,7 +33,7 @@ public class Operations {
 
   public static ClassLoader defaultLoader() {
     final ClassLoader tcl = Thread.currentThread().getContextClassLoader();
-    return (tcl == null) ? Operations.class.getClassLoader() : tcl;
+    return tcl == null ? Operations.class.getClassLoader() : tcl;
   }
 
   public static <S extends Operation> void invokeOperations(final Class<S> operationType,

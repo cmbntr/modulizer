@@ -5,8 +5,6 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
-import ch.cmbntr.modulizer.bootstrap.impl.PropertiesContext;
-
 public class PropertiesContextTest {
 
   @Test

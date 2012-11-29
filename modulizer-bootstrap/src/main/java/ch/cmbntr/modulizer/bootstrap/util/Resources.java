@@ -201,11 +201,11 @@ public class Resources {
 
   }
 
-  public static void delay(long millisDelay, final Runnable work) {
+  public static void delay(final long millisDelay, final Runnable work) {
     delay(millisDelay, getPoolHandle(), work);
   }
 
-  public static void delay(long millisDelay, final Pool pool, final Runnable work) {
+  public static void delay(final long millisDelay, final Pool pool, final Runnable work) {
     final ScheduledExecutorService exec = pool.aquireBlockableExec();
     try {
       exec.schedule(work, millisDelay, TimeUnit.MILLISECONDS);
