@@ -74,6 +74,22 @@
                 <name>modulizer.logging</name>
                 <value>app.dir</value>
               </property>
+              <property>
+                <name>modulizer.bootstrap.verbose-loading.millis</name>
+                <value>4000</value>
+              </property>
+              <property>
+                <name>modulizer.bootstrap.gc.delay-millis</name>
+                <value>6000</value>
+              </property>
+              <property>
+                <name>modulizer.bootstrap.preload</name>
+                <value>java.net.URI|java.io.StringWriter,java.util.concurrent.CountDownLatch</value>
+              </property>
+              <property>
+                <name>modulizer.bootstrap.preload-non-headless</name>
+                <value>javax.swing.JComponent,javax.swing.JDialog</value>
+              </property>
             </bootstrapContext>
             <mainModule>demo</mainModule>
             <modules>

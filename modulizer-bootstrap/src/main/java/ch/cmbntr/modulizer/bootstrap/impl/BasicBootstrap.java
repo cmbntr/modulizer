@@ -5,18 +5,24 @@ import static ch.cmbntr.modulizer.bootstrap.util.ModulizerIO.mkdir;
 import static ch.cmbntr.modulizer.bootstrap.util.ModulizerLog.initLogging;
 import static java.lang.Boolean.parseBoolean;
 
+import java.awt.GraphicsEnvironment;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.management.ManagementFactory;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.InvalidPropertiesFormatException;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.Future;
 
 import ch.cmbntr.modulizer.bootstrap.Bootstrap;
 import ch.cmbntr.modulizer.bootstrap.BootstrapContext;
 import ch.cmbntr.modulizer.bootstrap.Launch;
+import ch.cmbntr.modulizer.bootstrap.Operations;
 import ch.cmbntr.modulizer.bootstrap.Prepare;
+import ch.cmbntr.modulizer.bootstrap.util.ModulizerLog;
 import ch.cmbntr.modulizer.bootstrap.util.Resources;
 import ch.cmbntr.modulizer.bootstrap.util.Resources.Pool;
 
@@ -33,6 +39,7 @@ public class BasicBootstrap extends AbstractOperation implements Bootstrap {
       performSecuritySettings();
       initializeLogging();
       verboseLoading();
+      preloading();
 
       final Future<ClassLoader> prepareLoader = preparePluginLoader(handle);
       final Future<ClassLoader> launchLoader = launchPluginLoader(handle);
@@ -101,6 +108,72 @@ public class BasicBootstrap extends AbstractOperation implements Bootstrap {
         }
       });
     }
+  }
+
+  private void preloading() {
+    final ClassLoader loader = Operations.defaultLoader();
+    preload(false, loader, lookupContext(BootstrapContext.CONFIG_KEY_PRELOAD));
+    preload(true, loader, lookupContext(BootstrapContext.CONFIG_KEY_PRELOAD_NONHEADLESS));
+  }
+
+  private static void preload(final boolean onlyNonHeadless, final ClassLoader loader, final String preloadSpec) {
+    if (preloadSpec == null) {
+      return;
+    }
+    Resources.execute(new Runnable() {
+      @Override
+      public void run() {
+        if (onlyNonHeadless && GraphicsEnvironment.isHeadless()) {
+          return;
+        }
+        for (final List<String> slice : parsePreloadSpec(preloadSpec)) {
+          Resources.delay(0L, new Runnable() {
+            @Override
+            public void run() {
+              for (final String clazz : slice) {
+                try {
+                  Class.forName(clazz, true, loader);
+                } catch (final ClassNotFoundException e) {
+                  ModulizerLog.warn("preload of %s failed: %s", clazz, e.getMessage());
+                }
+              }
+            }
+          });
+        }
+      }
+    });
+  }
+
+  private static List<List<String>> parsePreloadSpec(final String barSeparatedClassLists) {
+    if (barSeparatedClassLists == null) {
+      return Collections.emptyList();
+    }
+
+    final String[] slices = barSeparatedClassLists.split("\\|");
+    if (slices.length == 1) {
+      return Collections.singletonList(classNames(slices[0]));
+    } else {
+      final List<List<String>> result = new ArrayList<List<String>>(slices.length);
+      for (final String slice : slices) {
+        final List<String> classes = classNames(slice);
+        if (!classes.isEmpty()) {
+          result.add(classes);
+        }
+      }
+      return result;
+    }
+  }
+
+  private static List<String> classNames(final String commaSeparatedClasses) {
+    final String[] classes = commaSeparatedClasses.split(",");
+    final List<String> result = new ArrayList<String>(classes.length);
+    for (final String clazz : classes) {
+      final String trimmed = clazz.trim();
+      if (trimmed.length() > 0) {
+        result.add(trimmed);
+      }
+    }
+    return result;
   }
 
   private String sanitizeAppId(final PropertiesContext ctx) {

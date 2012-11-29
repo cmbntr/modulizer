@@ -19,6 +19,10 @@ public interface BootstrapContext extends Map<String, String> {
 
   public static final String CONFIG_KEY_VERBOSE_LOADING_MILLIS = "modulizer.bootstrap.verbose-loading.millis";
 
+  public static final String CONFIG_KEY_PRELOAD = "modulizer.bootstrap.preload";
+
+  public static final String CONFIG_KEY_PRELOAD_NONHEADLESS = "modulizer.bootstrap.preload-non-headless";
+
   public static final String CONFIG_KEY_GC_DELAY = "modulizer.bootstrap.gc.delay-millis";
 
   public static final String CONFIG_KEY_SECURITY_SKIP = "modulizer.bootstrap.security.skip";
