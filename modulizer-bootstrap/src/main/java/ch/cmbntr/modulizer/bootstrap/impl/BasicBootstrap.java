@@ -32,6 +32,7 @@ public class BasicBootstrap extends AbstractOperation implements Bootstrap {
       establishContext();
       performSecuritySettings();
       initializeLogging();
+      verboseLoading();
 
       final Future<ClassLoader> prepareLoader = preparePluginLoader(handle);
       final Future<ClassLoader> launchLoader = launchPluginLoader(handle);
@@ -84,6 +85,24 @@ public class BasicBootstrap extends AbstractOperation implements Bootstrap {
     initLogging(loggingConfig);
   }
 
+  private void verboseLoading() {
+    final String val = lookupContext(BootstrapContext.CONFIG_KEY_VERBOSE_LOADING_MILLIS);
+    final long verboseLoadingMillis = val == null ? -1L : Long.parseLong(val);
+    verboseClassloading(verboseLoadingMillis);
+  }
+
+  private static void verboseClassloading(final long durationMillis) {
+    if (durationMillis > 0L) {
+      ManagementFactory.getClassLoadingMXBean().setVerbose(true);
+      Resources.delay(durationMillis, new Runnable() {
+        @Override
+        public void run() {
+          ManagementFactory.getClassLoadingMXBean().setVerbose(false);
+        }
+      });
+    }
+  }
+
   private String sanitizeAppId(final PropertiesContext ctx) {
     final String given = ctx.get(BootstrapContext.CONFIG_KEY_APP_ID);
     return given == null ? "unnamed-" + UUID.randomUUID() : given.trim();
@@ -134,7 +153,7 @@ public class BasicBootstrap extends AbstractOperation implements Bootstrap {
   }
 
   private static void delayedGC(final long delay) {
-    if (delay >= 0) {
+    if (delay >= 0L) {
       Resources.delay(delay, new Runnable() {
         @Override
         public void run() {

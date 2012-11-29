@@ -17,7 +17,9 @@ public interface BootstrapContext extends Map<String, String> {
 
   public static final String CONFIG_KEY_BASE_DIR = "modulizer.bootstrap.base.dir";
 
-  public static final String CONFIG_KEY_GC_DELAY = "modulizer.bootstrap.gc.delay-ms";
+  public static final String CONFIG_KEY_VERBOSE_LOADING_MILLIS = "modulizer.bootstrap.verbose-loading.millis";
+
+  public static final String CONFIG_KEY_GC_DELAY = "modulizer.bootstrap.gc.delay-millis";
 
   public static final String CONFIG_KEY_SECURITY_SKIP = "modulizer.bootstrap.security.skip";
 
