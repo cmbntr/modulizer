@@ -104,7 +104,7 @@ public class FileTreePrepare extends AbstractPrepare {
       @Override
       public URI call() throws Exception {
         final String given = lookupContext(BootstrapContext.CONFIG_KEY_BUNDLE_URI,
-            BootstrapContext.DEFAULT_KEY_BUNDLE_URI);
+            BootstrapContext.DEFAULT_BUNDLE_URI);
         final URI bundleURI = URI.create(given);
         if (bundleURI.isAbsolute()) {
           return bundleURI;
@@ -120,7 +120,7 @@ public class FileTreePrepare extends AbstractPrepare {
   }
 
   private String determineBundleRef() {
-    return lookupContext(BootstrapContext.CONFIG_KEY_BUNDLE_REF, BootstrapContext.DEFAULT_KEY_BUNDLE_REF);
+    return lookupContext(BootstrapContext.CONFIG_KEY_BUNDLE_REF, BootstrapContext.DEFAULT_BUNDLE_REF);
   }
 
   private String lookupContext(final String key, final String defaultValue) {

@@ -7,8 +7,8 @@ import static ch.cmbntr.modulizer.bootstrap.BootstrapContext.CONFIG_KEY_BUNDLE_U
 import static ch.cmbntr.modulizer.bootstrap.BootstrapContext.CONFIG_KEY_LAUNCH_PLUGINS;
 import static ch.cmbntr.modulizer.bootstrap.BootstrapContext.CONFIG_KEY_MAIN_MODULE;
 import static ch.cmbntr.modulizer.bootstrap.BootstrapContext.CONFIG_KEY_PREPARE_PLUGINS;
-import static ch.cmbntr.modulizer.bootstrap.BootstrapContext.DEFAULT_KEY_BUNDLE_REF;
-import static ch.cmbntr.modulizer.bootstrap.BootstrapContext.DEFAULT_KEY_BUNDLE_URI;
+import static ch.cmbntr.modulizer.bootstrap.BootstrapContext.DEFAULT_BUNDLE_REF;
+import static ch.cmbntr.modulizer.bootstrap.BootstrapContext.DEFAULT_BUNDLE_URI;
 import static ch.cmbntr.modulizer.bootstrap.util.ModulizerIO.sha1async;
 import static ch.cmbntr.modulizer.plugin.util.ModulizerUtil.collect;
 import static ch.cmbntr.modulizer.plugin.util.ModulizerUtil.compute;
@@ -362,11 +362,11 @@ public class ModulizeMojo extends AbstractModulizeMojo {
   }
 
   private String determineBundleName() {
-    return new File(conf(CONFIG_KEY_BUNDLE_URI, DEFAULT_KEY_BUNDLE_URI)).getName().trim();
+    return new File(conf(CONFIG_KEY_BUNDLE_URI, DEFAULT_BUNDLE_URI)).getName().trim();
   }
 
   private String determineBundleRef() {
-    return Snapshot.sanitizeHeadRef(conf(CONFIG_KEY_BUNDLE_REF, DEFAULT_KEY_BUNDLE_REF));
+    return Snapshot.sanitizeHeadRef(conf(CONFIG_KEY_BUNDLE_REF, DEFAULT_BUNDLE_REF));
   }
 
   private File createBootstrapConfig() throws MojoExecutionException {

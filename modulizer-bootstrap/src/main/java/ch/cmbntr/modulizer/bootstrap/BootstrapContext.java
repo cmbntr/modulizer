@@ -43,9 +43,9 @@ public interface BootstrapContext extends Map<String, String> {
 
   public static final String CONFIG_KEY_FILETREE_CLEANUP = "modulizer.filetree.cleanup";
 
-  public static final String DEFAULT_KEY_BUNDLE_REF = "refs/heads/master";
+  public static final String DEFAULT_BUNDLE_REF = "refs/heads/master";
 
-  public static final String DEFAULT_KEY_BUNDLE_URI = "/filetree.dat";
+  public static final String DEFAULT_BUNDLE_URI = "/filetree.dat";
 
   public static final long DEFAULT_GC_DELAY_MS = 8000L;
 
