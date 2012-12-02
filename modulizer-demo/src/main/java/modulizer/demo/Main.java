@@ -21,7 +21,8 @@ public class Main {
   }
 
   public static void main(final String[] args) throws IOException {
-    final String msg = "hello world\n" + Arrays.toString(args);
+    final String msg = String.format("hello world\nargs: %s\napp dir:%s\nlog: %s", Arrays.toString(args),
+        System.getProperty("modulizer.bootstrap.app.dir"), System.getProperty("demo.logfile"));
     LOG.info(msg);
 
     final boolean isHeadless = GraphicsEnvironment.isHeadless();

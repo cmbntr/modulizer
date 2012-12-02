@@ -6,6 +6,17 @@
     <resetJUL>true</resetJUL>
   </contextListener>
 
+  <property scope="system" name="demo.logfile"
+    value="${modulizer.bootstrap.app.dir:-${user.home}}/demo.log" />
+
+  <appender name="FILE" class="ch.qos.logback.core.FileAppender">
+    <file>${demo.logfile}</file>
+    <encoder>
+      <pattern>%date [%thread] %-5level %logger{35} - %msg %n
+      </pattern>
+    </encoder>
+  </appender>
+
   <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
     <encoder>
       <pattern>%date [%thread] %-5level %logger{35} - %msg %n
@@ -18,5 +29,6 @@
 
   <root level="${logging.level:-ERROR}">
     <appender-ref ref="STDOUT" />
+    <appender-ref ref="FILE" />
   </root>
 </configuration>

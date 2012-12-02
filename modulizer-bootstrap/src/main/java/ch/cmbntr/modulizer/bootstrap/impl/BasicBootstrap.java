@@ -19,6 +19,7 @@ import ch.cmbntr.modulizer.bootstrap.Launch;
 import ch.cmbntr.modulizer.bootstrap.Prepare;
 import ch.cmbntr.modulizer.bootstrap.util.Resources;
 import ch.cmbntr.modulizer.bootstrap.util.Resources.Pool;
+import ch.cmbntr.modulizer.bootstrap.util.SystemPropertyHelper;
 
 public class BasicBootstrap extends AbstractOperation implements Bootstrap {
 
@@ -65,9 +66,9 @@ public class BasicBootstrap extends AbstractOperation implements Bootstrap {
     }
     try {
       final PropertiesContext ctx = PropertiesContext.empty().loadFromXML(config).addSystemProperties();
-      ctx.put(BootstrapContext.CONFIG_KEY_UUID, UUID.randomUUID().toString());
-      ctx.put(BootstrapContext.CONFIG_KEY_APP_ID, sanitizeAppId(ctx));
-      ctx.put(BootstrapContext.CONFIG_KEY_APP_DIR, sanitizeAppDir(ctx));
+      defineAndExport(ctx, BootstrapContext.CONFIG_KEY_UUID, UUID.randomUUID().toString());
+      defineAndExport(ctx, BootstrapContext.CONFIG_KEY_APP_ID, sanitizeAppId(ctx));
+      defineAndExport(ctx, BootstrapContext.CONFIG_KEY_APP_DIR, sanitizeAppDir(ctx));
       BootstrapContext.CURRENT.set(ctx);
 
     } catch (final InvalidPropertiesFormatException e) {
@@ -77,6 +78,11 @@ public class BasicBootstrap extends AbstractOperation implements Bootstrap {
     } finally {
       closeQuietly(config);
     }
+  }
+
+  private void defineAndExport(final PropertiesContext ctx, final String key, final String value) {
+    ctx.put(key, value);
+    SystemPropertyHelper.export(key, value);
   }
 
   private void initializeLogging() {
