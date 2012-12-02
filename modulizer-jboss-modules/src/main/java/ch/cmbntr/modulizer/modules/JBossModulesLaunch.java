@@ -1,7 +1,6 @@
 package ch.cmbntr.modulizer.modules;
 
 import static ch.cmbntr.modulizer.modules.ModulizerModulesUtil.invokeModulesMain;
-import static ch.cmbntr.modulizer.modules.ModulizerModulesUtil.preloadClasses;
 
 import java.io.File;
 import java.util.Arrays;
@@ -11,9 +10,11 @@ import ch.cmbntr.modulizer.bootstrap.impl.AbstractLaunch;
 
 public class JBossModulesLaunch extends AbstractLaunch {
 
+  private static final String PRELOAD = "org.jboss.modules.Main,org.jboss.modules.ModuleIdentifier,org.jboss.modules.Module,org.jboss.modules.LocalModuleLoader";
+
   @Override
   public void run() {
-    preloadClasses();
+    preloading();
 
     final String appName = determineAppName();
     final String mainModule = determineMainModule();
@@ -22,6 +23,10 @@ public class JBossModulesLaunch extends AbstractLaunch {
     log("starting module '%s' (repo=%s, module=%s, args=%s)", appName, modulesRepo, mainModule, Arrays.toString(args));
 
     invokeModulesMain(appName, modulesRepo, mainModule, args);
+  }
+
+  private void preloading() {
+    preload(false, PRELOAD);
   }
 
   private String determineAppName() {

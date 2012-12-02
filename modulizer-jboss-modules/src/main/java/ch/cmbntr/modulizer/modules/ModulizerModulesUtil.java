@@ -1,6 +1,5 @@
 package ch.cmbntr.modulizer.modules;
 
-import static ch.cmbntr.modulizer.bootstrap.util.Resources.execute;
 import static ch.cmbntr.modulizer.bootstrap.util.SystemPropertyHelper.restoreProps;
 import static ch.cmbntr.modulizer.bootstrap.util.SystemPropertyHelper.snapshotProps;
 
@@ -22,8 +21,8 @@ import org.jboss.modules.Main;
 import org.jboss.modules.Module;
 import org.jboss.modules.ModuleIdentifier;
 
-import ch.cmbntr.modulizer.bootstrap.util.Resources;
 import ch.cmbntr.modulizer.bootstrap.util.ModulizerLog.ExceptionLogger;
+import ch.cmbntr.modulizer.bootstrap.util.Resources;
 import ch.cmbntr.modulizer.bootstrap.util.Resources.Pool;
 
 public class ModulizerModulesUtil {
@@ -32,10 +31,6 @@ public class ModulizerModulesUtil {
 
   private ModulizerModulesUtil() {
     super();
-  }
-
-  public static void preloadClasses() {
-    execute(new Preloader());
   }
 
   public static List<Module> loadModules(final Iterable<String> moduleIdentifiers, final File... repoRoots) {
@@ -154,16 +149,6 @@ public class ModulizerModulesUtil {
       final CountDownLatch done = invokeModulesMain(mainModule, repoPath, mainModule, moduleArgs);
       done.await();
       System.exit(0);
-    }
-  }
-
-  private static final class Preloader implements Runnable {
-    @Override
-    public void run() {
-      System.identityHashCode(Main.class);
-      System.identityHashCode(ModuleIdentifier.class);
-      System.identityHashCode(Module.class);
-      System.identityHashCode(LocalModuleLoader.class);
     }
   }
 

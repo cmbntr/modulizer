@@ -87,7 +87,7 @@
                 <value>java.net.URI|java.io.StringWriter,java.util.concurrent.CountDownLatch</value>
               </property>
               <property>
-                <name>modulizer.bootstrap.preload-non-headless</name>
+                <name>modulizer.bootstrap.preload-gui</name>
                 <value>javax.swing.JComponent,javax.swing.JDialog</value>
               </property>
             </bootstrapContext>

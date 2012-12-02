@@ -10,9 +10,15 @@ import ch.cmbntr.modulizer.bootstrap.BootstrapContext;
 import ch.cmbntr.modulizer.bootstrap.Operation;
 import ch.cmbntr.modulizer.bootstrap.Operations.PluginLoader;
 import ch.cmbntr.modulizer.bootstrap.util.ModulizerLog;
+import ch.cmbntr.modulizer.bootstrap.util.Preloading;
 import ch.cmbntr.modulizer.bootstrap.util.Resources.Pool;
 
 public abstract class AbstractOperation implements Operation {
+
+  protected void preload(final boolean requiresGUI, final String preloadSpec) {
+    final ClassLoader loader = this.getClass().getClassLoader();
+    Preloading.preload(requiresGUI, loader, preloadSpec);
+  }
 
   protected static String lookupContext(final String key) {
     final BootstrapContext ctx = BootstrapContext.CURRENT.get();
