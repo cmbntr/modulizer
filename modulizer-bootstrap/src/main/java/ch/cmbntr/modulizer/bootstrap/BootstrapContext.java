@@ -9,6 +9,8 @@ public interface BootstrapContext extends Map<String, String> {
 
   public static final String CONFIG_KEY_LOGGING = "modulizer.logging";
 
+  public static final String CONFIG_KEY_UUID = "modulizer.bootstrap.uuid";
+
   public static final String CONFIG_KEY_APP_ID = "modulizer.bootstrap.app.id";
 
   public static final String CONFIG_KEY_APP_DIR = "modulizer.bootstrap.app.dir";

@@ -71,6 +71,7 @@ public class BasicBootstrap extends AbstractOperation implements Bootstrap {
     }
     try {
       final PropertiesContext ctx = PropertiesContext.empty().loadFromXML(config).addSystemProperties();
+      ctx.put(BootstrapContext.CONFIG_KEY_UUID, UUID.randomUUID().toString());
       ctx.put(BootstrapContext.CONFIG_KEY_APP_ID, sanitizeAppId(ctx));
       ctx.put(BootstrapContext.CONFIG_KEY_APP_DIR, sanitizeAppDir(ctx));
       BootstrapContext.CURRENT.set(ctx);
@@ -178,7 +179,7 @@ public class BasicBootstrap extends AbstractOperation implements Bootstrap {
 
   private String sanitizeAppId(final PropertiesContext ctx) {
     final String given = ctx.get(BootstrapContext.CONFIG_KEY_APP_ID);
-    return given == null ? "unnamed-" + UUID.randomUUID() : given.trim();
+    return given == null ? "unnamed-" + ctx.get(BootstrapContext.CONFIG_KEY_UUID) : given.trim();
   }
 
   private String sanitizeAppDir(final PropertiesContext ctx) throws IOException {
