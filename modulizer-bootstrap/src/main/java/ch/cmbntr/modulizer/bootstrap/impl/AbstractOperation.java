@@ -43,9 +43,9 @@ public abstract class AbstractOperation implements Operation {
     return submit(pool, PluginLoader.create(pluginDir, lookupContext(pluginSpecKey)));
   }
 
-  protected static <S extends Operation> void invokePluginOperations(final Class<S> operationType,
-      final Future<ClassLoader> pluginLoader) {
-    invokeOperations(operationType, pluginLoader);
+  protected static <S extends Operation> void invokePluginOperations(final boolean restoreSystemProps,
+      final Class<S> operationType, final Future<ClassLoader> pluginLoader) {
+    invokeOperations(restoreSystemProps, operationType, pluginLoader);
   }
 
   protected static void log(final String msg, final Object... args) {

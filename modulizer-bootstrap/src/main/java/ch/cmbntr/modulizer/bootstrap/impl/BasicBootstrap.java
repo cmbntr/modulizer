@@ -33,6 +33,7 @@ public class BasicBootstrap extends AbstractOperation implements Bootstrap {
       establishContext();
       performSecuritySettings();
       initializeLogging();
+      exportProperties();
       verboseLoading();
       preloading();
 
@@ -66,9 +67,9 @@ public class BasicBootstrap extends AbstractOperation implements Bootstrap {
     }
     try {
       final PropertiesContext ctx = PropertiesContext.empty().loadFromXML(config).addSystemProperties();
-      defineAndExport(ctx, BootstrapContext.CONFIG_KEY_UUID, UUID.randomUUID().toString());
-      defineAndExport(ctx, BootstrapContext.CONFIG_KEY_APP_ID, sanitizeAppId(ctx));
-      defineAndExport(ctx, BootstrapContext.CONFIG_KEY_APP_DIR, sanitizeAppDir(ctx));
+      ctx.put(BootstrapContext.CONFIG_KEY_UUID, UUID.randomUUID().toString());
+      ctx.put(BootstrapContext.CONFIG_KEY_APP_ID, sanitizeAppId(ctx));
+      ctx.put(BootstrapContext.CONFIG_KEY_APP_DIR, sanitizeAppDir(ctx));
       BootstrapContext.CURRENT.set(ctx);
 
     } catch (final InvalidPropertiesFormatException e) {
@@ -80,17 +81,28 @@ public class BasicBootstrap extends AbstractOperation implements Bootstrap {
     }
   }
 
-  private void defineAndExport(final PropertiesContext ctx, final String key, final String value) {
-    ctx.put(key, value);
-    SystemPropertyHelper.export(key, value);
-  }
-
   private void initializeLogging() {
     String loggingConfig = lookupContext(BootstrapContext.CONFIG_KEY_LOGGING);
     if ("app.dir".equals(loggingConfig)) {
       loggingConfig = "file:" + lookupContext(BootstrapContext.CONFIG_KEY_APP_DIR) + "/bootstrap.log";
+      putContext(BootstrapContext.CONFIG_KEY_LOGGING, loggingConfig);
     }
     initLogging(loggingConfig);
+  }
+
+  private void exportProperties() {
+    final BootstrapContext ctx = BootstrapContext.CURRENT.get();
+    export(ctx, BootstrapContext.CONFIG_KEY_UUID);
+    export(ctx, BootstrapContext.CONFIG_KEY_APP_ID);
+    export(ctx, BootstrapContext.CONFIG_KEY_APP_DIR);
+    export(ctx, BootstrapContext.CONFIG_KEY_LOGGING);
+  }
+
+  private void export(final BootstrapContext ctx, final String key) {
+    final String val = ctx.get(key);
+    if (val != null) {
+      SystemPropertyHelper.export(key, val);
+    }
   }
 
   private void verboseLoading() {
@@ -148,7 +160,7 @@ public class BasicBootstrap extends AbstractOperation implements Bootstrap {
   }
 
   private void prepare(final Future<ClassLoader> loader) {
-    invokePluginOperations(Prepare.class, loader);
+    invokePluginOperations(true, Prepare.class, loader);
   }
 
   private Future<ClassLoader> launchPluginLoader(final Pool handle) {
@@ -156,7 +168,7 @@ public class BasicBootstrap extends AbstractOperation implements Bootstrap {
   }
 
   private void launch(final Future<ClassLoader> loader) {
-    invokePluginOperations(Launch.class, loader);
+    invokePluginOperations(false, Launch.class, loader);
   }
 
   private void scheduleGC() {

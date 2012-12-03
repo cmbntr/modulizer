@@ -36,18 +36,18 @@ public class Operations {
     return tcl == null ? Operations.class.getClassLoader() : tcl;
   }
 
-  public static <S extends Operation> void invokeOperations(final Class<S> operationType,
-      final Future<ClassLoader> loader) {
-    invokeOperations(operationType, Resources.get(loader, "failed to get classloader"));
+  public static <S extends Operation> void invokeOperations(final boolean restoreSystemProps,
+      final Class<S> operationType, final Future<ClassLoader> loader) {
+    invokeOperations(restoreSystemProps, operationType, Resources.get(loader, "failed to get classloader"));
   }
 
-  public static <S extends Operation> void invokeOperations(final Class<S> operationType, final ClassLoader loader) {
+  public static <S extends Operation> void invokeOperations(final boolean restoreSystemProps,
+      final Class<S> operationType, final ClassLoader loader) {
     log("invoke %s operations", operationType.getSimpleName());
     final Thread currentThread = Thread.currentThread();
     final ClassLoader origCCL = currentThread.getContextClassLoader();
-    final Properties origProps = snapshotProps();
+    final Properties origProps = restoreSystemProps ? snapshotProps() : null;
     try {
-
       final Iterator<S> ops = findOperations(operationType, loader);
       while (ops.hasNext()) {
         final Operation op = ops.next();

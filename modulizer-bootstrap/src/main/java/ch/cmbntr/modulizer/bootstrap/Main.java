@@ -17,7 +17,7 @@ public class Main {
   public static void main(final String[] args) {
     BootstrapContext.ARGS.set(args);
     try {
-      invokeOperations(Bootstrap.class, defaultLoader());
+      invokeOperations(false, Bootstrap.class, defaultLoader());
     } finally {
       BootstrapContext.ARGS.set(null);
       log("bootstrap time: %dms", MILLISECONDS.convert(System.nanoTime() - STARTUP_NANOS, NANOSECONDS));

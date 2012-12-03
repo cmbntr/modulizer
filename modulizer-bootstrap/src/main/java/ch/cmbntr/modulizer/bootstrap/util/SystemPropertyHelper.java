@@ -19,14 +19,26 @@ public class SystemPropertyHelper {
   }
 
   public static synchronized void export(final String key, final String value) {
-    EXPORT.put(key, value);
-    System.setProperty(key, value);
+    try {
+      EXPORT.put(key, value);
+      System.setProperty(key, value);
+    } catch (final SecurityException e) {
+      ModulizerLog.warn("could not set property %s to %s", key, value);
+    }
   }
 
   public static synchronized void restoreProps(final Properties origProps) {
-    origProps.putAll(EXPORT);
-    EXPORT.clear();
-    System.setProperties(origProps);
+    if (origProps == null) {
+      return;
+    }
+
+    try {
+      origProps.putAll(EXPORT);
+      EXPORT.clear();
+      System.setProperties(origProps);
+    } catch (final SecurityException e) {
+      ModulizerLog.warn("could not restore properties");
+    }
   }
 
 }
