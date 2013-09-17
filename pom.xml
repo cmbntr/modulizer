@@ -89,17 +89,17 @@
       <dependency>
         <groupId>org.jboss.modules</groupId>
         <artifactId>jboss-modules</artifactId>
-        <version>1.1.4.GA</version>
+        <version>1.1.5.GA</version>
       </dependency>
       <dependency>
         <groupId>org.eclipse.jgit</groupId>
         <artifactId>org.eclipse.jgit</artifactId>
-        <version>2.3.1.201302201838-r</version>
+        <version>3.0.0.201306101825-r</version>
       </dependency>
       <dependency>
         <groupId>com.google.guava</groupId>
         <artifactId>guava</artifactId>
-        <version>14.0.1</version>
+        <version>15.0</version>
       </dependency>
       <dependency>
         <groupId>org.jdom</groupId>
