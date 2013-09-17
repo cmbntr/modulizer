@@ -453,6 +453,8 @@ public class ModulizeMojo extends AbstractModulizeMojo {
   private Map<String, String> determineLauncherManifest() {
     final Map<String, String> entries = Maps.newLinkedHashMap();
     entries.put("Main-Class", Main.class.getName());
+    entries.put("Permissions", "all-permissions");
+    entries.put("Codebase", "*");
     if (!this.includeModulesInLauncher) {
       entries.put("Class-Path", determineModulesArtifactName());
     }
