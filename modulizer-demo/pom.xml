@@ -71,6 +71,14 @@
                 <value>false</value>
               </property>
               <property>
+                <name>modulizer.filetree.copy.jfxrt.src</name>
+                <value>${java.home}/lib/jfxrt.jar</value>
+              </property>
+              <property>
+                <name>modulizer.filetree.copy.jfxrt.dest</name>
+                <value>${modulizer.bootstrap.app.dir}/javafx/rt/main/jfxrt.jar</value>
+              </property>
+              <property>
                 <name>modulizer.logging</name>
                 <value>app.dir</value>
               </property>
@@ -106,6 +114,12 @@
                   <moduleDependency>
                     <name>javax.api</name>
                   </moduleDependency>
+                  <!--
+                  TODO module preloading fails in mojo 
+                  <moduleDependency>
+                    <name>javafx.rt</name>
+                  </moduleDependency>
+                   -->
                   <moduleDependency>
                     <name>logging</name>
                   </moduleDependency>
