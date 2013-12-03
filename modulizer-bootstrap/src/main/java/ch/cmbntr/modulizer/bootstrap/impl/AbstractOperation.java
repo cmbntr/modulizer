@@ -4,7 +4,10 @@ import static ch.cmbntr.modulizer.bootstrap.Operations.invokeOperations;
 import static ch.cmbntr.modulizer.bootstrap.util.Resources.submit;
 
 import java.io.File;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.concurrent.Future;
+import java.util.regex.Pattern;
 
 import ch.cmbntr.modulizer.bootstrap.BootstrapContext;
 import ch.cmbntr.modulizer.bootstrap.Operation;
@@ -20,9 +23,27 @@ public abstract class AbstractOperation implements Operation {
     Preloading.preload(requiresGUI, loader, preloadSpec);
   }
 
+  protected static List<String> findMatchingContextKeys(final Pattern check) {
+    final List<String> matches = new LinkedList<String>();
+    final BootstrapContext ctx = BootstrapContext.CURRENT.get();
+    if (ctx != null) {
+      for (final String k : ctx.keySet()) {
+        if (check.matcher(k).matches()) {
+          matches.add(k);
+        }
+      }
+    }
+    return matches;
+  }
+
   protected static String lookupContext(final String key) {
     final BootstrapContext ctx = BootstrapContext.CURRENT.get();
     return ctx == null ? null : ctx.get(key);
+  }
+
+  protected static String lookupContextInterpolated(final String key) {
+    final BootstrapContext ctx = BootstrapContext.CURRENT.get();
+    return ctx == null ? null : ctx.getInterpolated(key);
   }
 
   protected static String putContext(final String key, final String value) {
