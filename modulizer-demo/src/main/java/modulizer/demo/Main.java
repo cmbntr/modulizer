@@ -21,9 +21,10 @@ public class Main {
   }
 
   public static void main(final String[] args) throws IOException {
-    final String msg = String.format("hello world\nargs: %s\napp dir:%s\nlog: %s\nbootstrap log: %s",
-        Arrays.toString(args), System.getProperty("modulizer.bootstrap.app.dir"), System.getProperty("demo.logfile"),
-        System.getProperty("modulizer.logging"));
+    final String msg = String.format(
+        "hello world\nargs: %s\napp dir:%s\nlog: %s\nbootstrap log: %s\nJavaFX WebView: %s", Arrays.toString(args),
+        System.getProperty("modulizer.bootstrap.app.dir"), System.getProperty("demo.logfile"),
+        System.getProperty("modulizer.logging"), findWebview());
     LOG.info(msg);
 
     final boolean isHeadless = GraphicsEnvironment.isHeadless();
@@ -37,6 +38,14 @@ public class Main {
       }
     } else {
       JOptionPane.showMessageDialog(null, msg);
+    }
+  }
+
+  private static Class<?> findWebview() {
+    try {
+      return Class.forName("javafx.scene.web.WebView", false, Main.class.getClassLoader());
+    } catch (Throwable t) {
+      return null;
     }
   }
 
