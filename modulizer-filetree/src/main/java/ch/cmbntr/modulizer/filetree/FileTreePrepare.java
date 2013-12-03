@@ -4,22 +4,29 @@ import static ch.cmbntr.modulizer.bootstrap.util.Resources.submit;
 import static ch.cmbntr.modulizer.filetree.FileTreeUtil.isTimestampDir;
 import static ch.cmbntr.modulizer.filetree.FileTreeUtil.timestamp;
 import static ch.cmbntr.modulizer.filetree.FileTreeUtil.timestampDirs;
+import static java.lang.String.format;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.eclipse.jgit.api.errors.GitAPIException;
 
 import ch.cmbntr.modulizer.bootstrap.BootstrapContext;
 import ch.cmbntr.modulizer.bootstrap.impl.AbstractPrepare;
+import ch.cmbntr.modulizer.bootstrap.util.ModulizerIO;
 import ch.cmbntr.modulizer.filetree.Restore.CleanupMode;
 
 public class FileTreePrepare extends AbstractPrepare {
+
+  private static final Pattern COPY_SRC_PATTERN = Pattern.compile("modulizer\\.filetree\\.copy\\.([^.]*)\\.src");
 
   private static final int NUM_ATTEMPTS = 3;
 
@@ -39,6 +46,8 @@ public class FileTreePrepare extends AbstractPrepare {
 
         log("prepare file tree at %s", moduleRepo);
         Restore.restore(moduleRepo, "master", requiredRef, bundle, bundleRef, cleanup);
+
+        performExtraCopyJobs();
         return;
 
       } catch (final IOException e) {
@@ -126,5 +135,34 @@ public class FileTreePrepare extends AbstractPrepare {
   private String lookupContext(final String key, final String defaultValue) {
     final String value = lookupContext(key);
     return value == null ? defaultValue : value;
+  }
+
+  private void performExtraCopyJobs() throws IOException {
+    for (final String key : findMatchingContextKeys(COPY_SRC_PATTERN)) {
+      final Matcher m = COPY_SRC_PATTERN.matcher(key);
+      if (m.matches()) {
+        final String jobLabel = m.group(1);
+        final String src = lookupContextInterpolated(key);
+        final String dest = lookupContextInterpolated(format("modulizer.filetree.copy.%s.dest", jobLabel));
+        if (dest != null) {
+          final URL from = copySourceToURL(src);
+          final File tgt = copyDestinationToFile(dest);
+          log("extra copy job '%s': [%s] to [%s]", jobLabel, from, tgt);
+          ModulizerIO.copyStream(from, tgt);
+        }
+      }
+    }
+  }
+
+  private static URL copySourceToURL(final String src) throws MalformedURLException {
+    try {
+      return new URL(src);
+    } catch (final MalformedURLException e) {
+      return new File(src).toURI().toURL();
+    }
+  }
+
+  private File copyDestinationToFile(final String dest) {
+    return new File(dest).getAbsoluteFile();
   }
 }
