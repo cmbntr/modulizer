@@ -6,7 +6,7 @@ import java.util.regex.Pattern;
 
 public interface BootstrapContext extends Map<String, String> {
 
-  public static final Pattern INTERPOLATION = Pattern.compile("\\$\\{([^}]*)\\}");
+  public static final Pattern INTERPOLATION = Pattern.compile("[$%]\\{([^}]*)\\}");
 
   public static final String CONFIG_NAME = "/bootstrap-config.xml";
 
@@ -59,8 +59,8 @@ public interface BootstrapContext extends Map<String, String> {
   public static final AtomicReference<BootstrapContext> CURRENT = new AtomicReference<BootstrapContext>();
 
   /**
-   * Performs a {@link #get(Object)} and replaces ${propName} with its value. Each reference is replaced once,
-   * left to right.
+   * Performs a {@link #get(Object)} and replaces ${propName}/%{propName} with its value.
+   * Each reference is replaced once, left to right.
    *
    * @param key the lookup key
    * @return the interpolated value {@code null} if absent

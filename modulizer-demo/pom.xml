@@ -72,11 +72,11 @@
               </property>
               <property>
                 <name>modulizer.filetree.copy.jfxrt.src</name>
-                <value>${java.home}/lib/jfxrt.jar</value>
+                <value>%{java.home}/lib/jfxrt.jar</value>
               </property>
               <property>
                 <name>modulizer.filetree.copy.jfxrt.dest</name>
-                <value>${modulizer.bootstrap.app.dir}/javafx/rt/main/jfxrt.jar</value>
+                <value>%{modulizer.bootstrap.app.dir}/javafx/rt/main/jfxrt.jar</value>
               </property>
               <property>
                 <name>modulizer.logging</name>
