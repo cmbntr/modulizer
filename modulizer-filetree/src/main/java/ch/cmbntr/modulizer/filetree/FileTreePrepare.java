@@ -137,32 +137,60 @@ public class FileTreePrepare extends AbstractPrepare {
     return value == null ? defaultValue : value;
   }
 
-  private void performExtraCopyJobs() throws IOException {
+  private void performExtraCopyJobs() {
     for (final String key : findMatchingContextKeys(COPY_SRC_PATTERN)) {
       final Matcher m = COPY_SRC_PATTERN.matcher(key);
       if (m.matches()) {
         final String jobLabel = m.group(1);
         final String src = lookupContextInterpolated(key);
         final String dest = lookupContextInterpolated(format("modulizer.filetree.copy.%s.dest", jobLabel));
-        if (dest != null) {
-          final URL from = copySourceToURL(src);
-          final File tgt = copyDestinationToFile(dest);
-          log("extra copy job '%s': [%s] to [%s]", jobLabel, from, tgt);
-          ModulizerIO.copyStream(from, tgt);
+        if (dest == null) {
+          warn("missing dest for copy job '%s'", jobLabel);
+
+        } else {
+          try {
+            final URL from = copySourceToURL(src);
+            final File tgt = copyDestinationToFile(dest);
+            log("copy job '%s': [%s] to [%s]", jobLabel, from, tgt);
+            ModulizerIO.copyStream(from, tgt);
+
+          } catch (final IOException e) {
+            failExtraCopyJob(jobLabel, e);
+          } catch (final RuntimeException e) {
+            failExtraCopyJob(jobLabel, e);
+          }
         }
       }
     }
   }
 
-  private static URL copySourceToURL(final String src) throws MalformedURLException {
+  private static void failExtraCopyJob(final String jobLabel, final Exception e) {
+    warn("copy job '%s' failed: %s", jobLabel, e.getMessage());
+    throw new RuntimeException(format("copy job '%s' failed", jobLabel), e);
+  }
+
+  private static URL copySourceToURL(final String src) {
     try {
-      return new URL(src);
+      final File f = new File(src).getAbsoluteFile();
+      if (f.canRead()) {
+        return f.toURI().toURL();
+      } else {
+        log("copy job source is not a readable file, try as URL");
+        return new URL(src);
+      }
+
     } catch (final MalformedURLException e) {
-      return new File(src).toURI().toURL();
+      throw new RuntimeException("could not create source URL for copy job, src=" + src, e);
     }
   }
 
   private File copyDestinationToFile(final String dest) {
-    return new File(dest).getAbsoluteFile();
+    final File f = new File(dest).getAbsoluteFile();
+    final File p = f.getParentFile();
+    if (p.isDirectory()) {
+      return f;
+    } else {
+      throw new RuntimeException("parent directory for copy job does not exist, dest=" + dest);
+    }
   }
 }
