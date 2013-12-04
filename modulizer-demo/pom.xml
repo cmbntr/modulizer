@@ -28,7 +28,7 @@
         <plugin>
           <groupId>ch.cmbntr</groupId>
           <artifactId>modulizer-plugin</artifactId>
-          <version>0.9.6-SNAPSHOT</version>
+          <version>0.9.7-SNAPSHOT</version>
           <configuration>
             <verbose>false</verbose>
             <includeModulesInLauncher>true</includeModulesInLauncher>
