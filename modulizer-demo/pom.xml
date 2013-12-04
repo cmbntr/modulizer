@@ -99,6 +99,7 @@
                 <value>javax.swing.JComponent,javax.swing.JDialog</value>
               </property>
             </bootstrapContext>
+            <warmupMandatory>false</warmupMandatory>
             <mainModule>demo</mainModule>
             <modules>
               <module>
@@ -114,12 +115,9 @@
                   <moduleDependency>
                     <name>javax.api</name>
                   </moduleDependency>
-                  <!--
-                  TODO module preloading fails in mojo 
                   <moduleDependency>
                     <name>javafx.rt</name>
                   </moduleDependency>
-                   -->
                   <moduleDependency>
                     <name>logging</name>
                   </moduleDependency>

@@ -152,6 +152,9 @@ public class ModulizeMojo extends AbstractModulizeMojo {
   private boolean warmupModules = true;
 
   @Parameter(defaultValue = "true")
+  private boolean warmupMandatory = true;
+
+  @Parameter(defaultValue = "true")
   private boolean stripVersion = true;
 
   private String conf(final String key, final String defaultValue) {
@@ -339,7 +342,7 @@ public class ModulizeMojo extends AbstractModulizeMojo {
   private void warmupModules() {
     if (this.warmupModules) {
       final List<String> ids = getSpecifiedModuleIdentifiers();
-      for (final Module module : ModulizerModulesUtil.loadModules(ids, this.modulesDirectory)) {
+      for (final Module module : ModulizerModulesUtil.tryLoadModules(this.warmupMandatory, ids, this.modulesDirectory)) {
         log("loaded " + module.getIdentifier());
       }
     }

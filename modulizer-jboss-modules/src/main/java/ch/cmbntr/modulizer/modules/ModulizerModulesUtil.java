@@ -33,7 +33,8 @@ public class ModulizerModulesUtil {
     super();
   }
 
-  public static List<Module> loadModules(final Iterable<String> moduleIdentifiers, final File... repoRoots) {
+  public static List<Module> tryLoadModules(final boolean mandatory, final Iterable<String> moduleIdentifiers,
+      final File... repoRoots) {
     final Pool pool = Resources.getPoolHandle();
     final ExecutorService exec = pool.aquireExec();
     final Properties origProps = snapshotProps();
@@ -51,7 +52,13 @@ public class ModulizerModulesUtil {
 
       final List<Module> modules = new ArrayList<Module>(asyncModules.size());
       for (final Future<Module> m : asyncModules) {
-        modules.add(Resources.get(m, "failed to load module"));
+        try {
+          modules.add(Resources.get(m, "failed to load module"));
+        } catch (final RuntimeException e) {
+          if (mandatory) {
+            throw e;
+          }
+        }
       }
       return modules;
     } finally {
