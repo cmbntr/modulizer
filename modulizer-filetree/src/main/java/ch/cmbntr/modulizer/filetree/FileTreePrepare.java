@@ -10,10 +10,18 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -27,6 +35,10 @@ import ch.cmbntr.modulizer.filetree.Restore.CleanupMode;
 public class FileTreePrepare extends AbstractPrepare {
 
   private static final Pattern COPY_SRC_PATTERN = Pattern.compile("modulizer\\.filetree\\.copy\\.([^.]*)\\.src");
+
+  private static final String COPY_DEST_TEMPLATE = "modulizer.filetree.copy.%s.dest";
+
+  private static final long EXTRA_COPY_HASHING_TIMEOUT_MINUTES = 5L;
 
   private static final int NUM_ATTEMPTS = 3;
 
@@ -47,7 +59,7 @@ public class FileTreePrepare extends AbstractPrepare {
         log("prepare file tree at %s", moduleRepo);
         Restore.restore(moduleRepo, "master", requiredRef, bundle, bundleRef, cleanup);
 
-        performExtraCopyJobs();
+        performExtraCopyJobs(findExtraCopyJobs());
         return;
 
       } catch (final IOException e) {
@@ -137,36 +149,27 @@ public class FileTreePrepare extends AbstractPrepare {
     return value == null ? defaultValue : value;
   }
 
-  private void performExtraCopyJobs() {
+  private Map<File, Map<String, URL>> findExtraCopyJobs() {
+    final Map<File, Map<String, URL>> jobsByDest = new LinkedHashMap<File, Map<String, URL>>();
     for (final String key : findMatchingContextKeys(COPY_SRC_PATTERN)) {
       final Matcher m = COPY_SRC_PATTERN.matcher(key);
       if (m.matches()) {
         final String jobLabel = m.group(1);
         final String src = lookupContextInterpolated(key);
-        final String dest = lookupContextInterpolated(format("modulizer.filetree.copy.%s.dest", jobLabel));
+        final String dest = lookupContextInterpolated(format(COPY_DEST_TEMPLATE, jobLabel));
         if (dest == null) {
           warn("missing dest for copy job '%s'", jobLabel);
 
         } else {
           try {
-            final URL from = copySourceToURL(src);
-            final File tgt = copyDestinationToFile(dest);
-            log("copy job '%s': [%s] to [%s]", jobLabel, from, tgt);
-            ModulizerIO.copyStream(from, tgt);
-
-          } catch (final IOException e) {
-            failExtraCopyJob(jobLabel, e);
+            jobsByDest.put(copyDestinationToFile(dest), Collections.singletonMap(jobLabel, copySourceToURL(src)));
           } catch (final RuntimeException e) {
             failExtraCopyJob(jobLabel, e);
           }
         }
       }
     }
-  }
-
-  private static void failExtraCopyJob(final String jobLabel, final Exception e) {
-    warn("copy job '%s' failed: %s", jobLabel, e.getMessage());
-    throw new RuntimeException(format("copy job '%s' failed", jobLabel), e);
+    return jobsByDest;
   }
 
   private static URL copySourceToURL(final String src) {
@@ -193,4 +196,65 @@ public class FileTreePrepare extends AbstractPrepare {
       throw new RuntimeException("parent directory for copy job does not exist, dest=" + dest);
     }
   }
+
+  private void performExtraCopyJobs(final Map<File, Map<String, URL>> jobsByDest) {
+    for (final Entry<File, Map<String, URL>> destAndSrcByLabel : jobsByDest.entrySet()) {
+      for (final Entry<String, URL> entry : destAndSrcByLabel.getValue().entrySet()) {
+        final String jobLabel = entry.getKey();
+        try {
+          final URL src = entry.getValue();
+          final File dest = destAndSrcByLabel.getKey();
+
+          log("copy job '%s': [%s] to [%s]", jobLabel, src, dest);
+          if (canSkipCopy(src, dest)) {
+            log("skip job '%s', because file exists and content matches", jobLabel);
+          } else {
+            ModulizerIO.copyStream(src, dest);
+          }
+
+        } catch (final IOException e) {
+          failExtraCopyJob(jobLabel, e);
+        } catch (final RuntimeException e) {
+          failExtraCopyJob(jobLabel, e);
+        }
+      }
+    }
+  }
+
+  private boolean canSkipCopy(final URL src, final File dest) {
+    try {
+      if (dest.exists()) {
+        final URI s = src.toURI();
+        final URI d = dest.toURI();
+        final Map<URI, Future<String>> x = ModulizerIO.sha1URIasync(Arrays.asList(s, d));
+        final String srcHash = hashOrNull(x.get(s));
+        final String destHash = hashOrNull(x.get(d));
+        return srcHash != null && destHash != null && srcHash.equals(destHash);
+      }
+      return false;
+
+    } catch (final URISyntaxException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  private String hashOrNull(final Future<String> hash) {
+    try {
+      return hash.get(EXTRA_COPY_HASHING_TIMEOUT_MINUTES, TimeUnit.MINUTES);
+
+    } catch (final ExecutionException e) {
+      log("hashing failed: %s", e.getCause().getMessage());
+    } catch (final InterruptedException e) {
+      log("hashing interrupted");
+    } catch (final TimeoutException e) {
+      log("hashing timout");
+    }
+    return null;
+  }
+
+  private static void failExtraCopyJob(final String jobLabel, final Exception e) {
+    warn("copy job '%s' failed: %s", jobLabel, e.getMessage());
+    throw new RuntimeException(format("copy job '%s' failed", jobLabel), e);
+  }
+
 }

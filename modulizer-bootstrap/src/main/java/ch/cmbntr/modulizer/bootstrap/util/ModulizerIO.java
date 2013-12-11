@@ -9,10 +9,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
-import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
 import java.security.MessageDigest;
@@ -160,26 +160,63 @@ public class ModulizerIO {
     if (f == null || !f.exists()) {
       return null;
     }
+    return sha1(new FileInputStream(f).getChannel());
+  }
+
+  public static LinkedHashMap<URI, Future<String>> sha1URIasync(final Iterable<URI> uris) {
+    final LinkedHashMap<URI, Future<String>> result = new LinkedHashMap<URI, Future<String>>();
     final Pool pool = Resources.getPoolHandle();
-    final ByteBuffer buf = pool.aquireBuffer();
+    final ExecutorService exec = pool.aquireExec();
     try {
-      final FileChannel fc = new FileInputStream(f).getChannel();
-      final MessageDigest digest = pool.aquireDigest();
+      for (final URI f : uris) {
+        result.put(f, exec.submit(new Callable<String>() {
+          @Override
+          public String call() throws Exception {
+            final StringBuilder sha1 = sha1URI(f);
+            return sha1 == null ? null : sha1.toString();
+          }
+        }));
+      }
+      return result;
+    } finally {
+      pool.releaseExec(exec);
+    }
+  }
+
+  public static StringBuilder sha1URI(final URI uri) throws IOException {
+    if (uri == null) {
+      return null;
+    }
+    if ("file".equals(uri.getScheme())) {
+      return sha1(new FileInputStream(new File(uri)).getChannel());
+    } else {
+      return sha1(Channels.newChannel(uri.toURL().openStream()));
+    }
+  }
+
+  private static StringBuilder sha1(/* @WillClose */final ReadableByteChannel src) throws IOException {
+    try {
+      final Pool pool = Resources.getPoolHandle();
+      final ByteBuffer buf = pool.aquireBuffer();
       try {
-        int cnt = 0;
-        while (cnt >= 0) {
-          cnt = fc.read(buf);
-          buf.flip();
-          digest.update(buf);
-          buf.clear();
+        final MessageDigest digest = pool.aquireDigest();
+        try {
+          int cnt = 0;
+          while (cnt >= 0) {
+            cnt = src.read(buf);
+            buf.flip();
+            digest.update(buf);
+            buf.clear();
+          }
+          return formatAsHex(digest.digest());
+        } finally {
+          pool.releaseDigest(digest);
         }
-        return formatAsHex(digest.digest());
       } finally {
-        pool.releaseDigest(digest);
-        closeQuietly(fc);
+        pool.releaseBuffer(buf);
       }
     } finally {
-      pool.releaseBuffer(buf);
+      closeQuietly(src);
     }
   }
 
