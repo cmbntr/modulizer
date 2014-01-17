@@ -45,6 +45,7 @@
             </signing>
             <webstart>
               <overlay>${basedir}/src/main/webstart</overlay>
+              <signTemplate>${basedir}/src/main/webstart/sign_template.xml</signTemplate>
               <jnlpFile>demo.jnlp</jnlpFile>
               <resourcesPath>resources</resourcesPath>
               <classifierName>webstart</classifierName>

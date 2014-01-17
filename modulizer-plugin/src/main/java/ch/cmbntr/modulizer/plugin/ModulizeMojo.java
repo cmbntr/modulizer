@@ -447,6 +447,13 @@ public class ModulizeMojo extends AbstractModulizeMojo {
     log("launcher manifest: " + entries);
     contents.add(this.archiver.manifest(entries));
 
+    // JNLP signing
+    if (this.webstart != null) {
+      final Map<File, String> jnlpSigning = this.webstart.determineSignIncludes();
+      log("jnlp signing: " + jnlpSigning);
+      contents.add(this.archiver.fileAdder(jnlpSigning));
+    }
+
     return contents;
   }
 

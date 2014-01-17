@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<jnlp spec="6.0+" codebase="*" href="demo.jnlp">
+  <information>
+    <title>Application Starter</title>
+    <vendor>CMBNTR</vendor>
+  </information>
+  <security>
+    <all-permissions />
+  </security>
+  <resources>
+    <j2se version="1.6+" href="http://java.sun.com/products/autodl/j2se" />
+    <jar href="resources/modulizer-demo-1.0.0-SNAPSHOT-launcher.jar" />
+  </resources>
+  <application-desc main-class="ch.cmbntr.modulizer.bootstrap.Main" />
+</jnlp>
