@@ -130,6 +130,9 @@ public class ModulizeMojo extends AbstractModulizeMojo {
   @Parameter
   private Webstart webstart;
 
+  @Parameter(defaultValue = "${project.name}")
+  private String applicationName;
+
   @Parameter(defaultValue = "launcher", required = true)
   private String launcherClassifierName;
 
@@ -172,6 +175,14 @@ public class ModulizeMojo extends AbstractModulizeMojo {
       ids.add(module.getModuleIdentifier());
     }
     return ids.build();
+  }
+
+  private String determineApplicationName() {
+    if (this.applicationName == null) {
+      String n = this.project.getName();
+      return n == null ? "Modulized Application" : n;
+    }
+    return this.applicationName;
   }
 
   private String determineLauncherArtifactName() {
@@ -456,6 +467,7 @@ public class ModulizeMojo extends AbstractModulizeMojo {
   private Map<String, String> determineLauncherManifest() {
     final Map<String, String> entries = Maps.newLinkedHashMap();
     entries.put("Main-Class", Main.class.getName());
+    entries.put("Application-Name", determineApplicationName());
     entries.put("Permissions", "all-permissions");
     entries.put("Codebase", "*");
     if (!this.includeModulesInLauncher) {
