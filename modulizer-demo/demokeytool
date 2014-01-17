@@ -1,0 +1,2 @@
+#!/bin/bash
+exec keytool -keystore src/main/demo_keystore.p12 -storepass s3KreT -storetype pkcs12 "$@"
