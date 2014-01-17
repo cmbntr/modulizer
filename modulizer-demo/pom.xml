@@ -101,6 +101,12 @@
             </bootstrapContext>
             <warmupMandatory>false</warmupMandatory>
             <applicationName>Application Starter Demo</applicationName>
+            <launcherManifest>
+              <property>
+                <name>Application-Library-Allowable-Codebase</name>
+                <value>*</value>
+              </property>
+            </launcherManifest>
             <mainModule>demo</mainModule>
             <modules>
               <module>

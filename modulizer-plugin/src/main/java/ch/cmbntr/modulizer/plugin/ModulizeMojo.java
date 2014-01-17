@@ -146,6 +146,9 @@ public class ModulizeMojo extends AbstractModulizeMojo {
   private File overlayDirectory;
 
   @Parameter
+  private Properties launcherManifest = new Properties();
+
+  @Parameter
   private Properties bootstrapContext = new Properties();
 
   @Parameter
@@ -179,7 +182,7 @@ public class ModulizeMojo extends AbstractModulizeMojo {
 
   private String determineApplicationName() {
     if (this.applicationName == null) {
-      String n = this.project.getName();
+      final String n = this.project.getName();
       return n == null ? "Modulized Application" : n;
     }
     return this.applicationName;
@@ -472,6 +475,9 @@ public class ModulizeMojo extends AbstractModulizeMojo {
     entries.put("Codebase", "*");
     if (!this.includeModulesInLauncher) {
       entries.put("Class-Path", determineModulesArtifactName());
+    }
+    for (final Entry<Object, Object> e : this.launcherManifest.entrySet()) {
+      entries.put(e.getKey().toString(), e.getValue().toString());
     }
     return entries;
   }
