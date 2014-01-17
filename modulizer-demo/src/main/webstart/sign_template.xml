@@ -9,7 +9,7 @@
   </security>
   <resources>
     <j2se version="1.6+" href="http://java.sun.com/products/autodl/j2se" />
-    <jar href="resources/modulizer-demo-1.0.0-SNAPSHOT-launcher.jar" />
+    <jar href="resources/modulizer-demo-launcher.jar" />
   </resources>
   <application-desc main-class="ch.cmbntr.modulizer.bootstrap.Main" />
 </jnlp>

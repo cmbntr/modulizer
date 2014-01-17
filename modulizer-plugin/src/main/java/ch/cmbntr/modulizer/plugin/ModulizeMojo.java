@@ -54,6 +54,7 @@ import org.apache.maven.shared.jarsigner.JarSignerRequest;
 import org.apache.maven.shared.jarsigner.JarSignerResult;
 import org.codehaus.plexus.util.DirectoryScanner;
 import org.codehaus.plexus.util.FileUtils;
+import org.codehaus.plexus.util.StringUtils;
 import org.codehaus.plexus.util.WriterFactory;
 import org.codehaus.plexus.util.cli.CommandLineException;
 import org.jboss.modules.Module;
@@ -205,6 +206,22 @@ public class ModulizeMojo extends AbstractModulizeMojo {
     final String artifactId = artifact.getArtifactId();
     final String version = artifact.getVersion();
     return String.format("%s-%s-%s.%s", artifactId, version, classifier, externsion);
+  }
+
+  private File stripVersion(final File resource) throws MojoExecutionException {
+    final String name = resource.getName();
+    final String version = "-" + this.project.getArtifact().getVersion();
+    if (name.contains(version)) {
+      final String newName = StringUtils.replace(name, version, "");
+      final File stripped = new File(resource.getParentFile(), newName);
+      try {
+        FileUtils.rename(resource, stripped);
+      } catch (final IOException e) {
+        failCopyWebstartResourcesAndCreateDefinitionFragment(e);
+      }
+      return stripped;
+    }
+    return resource;
   }
 
   @Override
@@ -574,7 +591,8 @@ public class ModulizeMojo extends AbstractModulizeMojo {
       final List<String> resourceHREFs = Lists.newLinkedList();
       for (final File r : resources) {
         FileUtils.copyFileToDirectory(r, resourcesDir);
-        resourceHREFs.add(String.format("\"%s/%s\"", pathPrefix, r.getName()));
+        final File stripped = stripVersion(new File(resourcesDir, r.getName()));
+        resourceHREFs.add(String.format("\"%s/%s\"", pathPrefix, stripped.getName()));
       }
 
       final Writer w = WriterFactory.newWriter(new File(webstartDir, WEBSTART_RESOURCES_DEF_FRAGMENT),
