@@ -96,7 +96,7 @@ public class ModuleDescriptors extends ModuleDependency {
         new XMLOutputter(Format.getPrettyFormat()).output(this.doc, out);
         out.flush();
       } finally {
-        Closeables.closeQuietly(out);
+        Closeables.close(out, true);
       }
       return this;
     }

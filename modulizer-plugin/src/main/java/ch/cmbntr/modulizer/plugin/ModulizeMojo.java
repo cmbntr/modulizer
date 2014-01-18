@@ -414,7 +414,11 @@ public class ModulizeMojo extends AbstractModulizeMojo {
     } catch (final IOException e) {
       throw new MojoExecutionException("failed to write boostrap-config.xml", e);
     } finally {
-      Closeables.closeQuietly(out);
+      try {
+        Closeables.close(out, true);
+      } catch (final IOException e) {
+        // Closables swallows the exception
+      }
     }
   }
 
