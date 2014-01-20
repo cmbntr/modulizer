@@ -1,4 +1,4 @@
-  <%-- body.jspf --%><%@ page pageEncoding="UTF-8" %>
+  <%-- body.jspf --%><%@ page pageEncoding="UTF-8" %><%@ include file="properties.jspf" %>
 
   <information>
     <title>Application Starter</title>
@@ -14,4 +14,7 @@
     <%@ include file="resources.jspf" %>
   </resources>
 
-  <application-desc main-class="ch.cmbntr.modulizer.bootstrap.Main"/>
+  <application-desc main-class="ch.cmbntr.modulizer.bootstrap.Main">
+    <argument>--systemProperties</argument>
+    <argument><%=encodeProperties(request, "systemProperties")%></argument>
+  </application-desc>

@@ -95,6 +95,8 @@ public class ModulizeMojo extends AbstractModulizeMojo {
 
   private static final String WEBSTART_JNLP_BODY = "WEB-INF/jspf/jnlp/body.jspf";
 
+  private static final String WEBSTART_JNLP_PROPS = "WEB-INF/jspf/jnlp/properties.jspf";
+
   private static final String WEBSTART_RESOURCES_DEF_FRAGMENT = "WEB-INF/jspf/jnlp/resources_def.jspf";
 
   private static final String WEBSTART_RESOURCES_FRAGMENT = "WEB-INF/jspf/jnlp/resources.jspf";
@@ -102,7 +104,7 @@ public class ModulizeMojo extends AbstractModulizeMojo {
   private static final String WEBSTART_RESOURCE_FRAGMENT = "WEB-INF/jspf/jnlp/resource.jspf";
 
   private static final List<String> WEBSTART_DEFAULT_FILES = ImmutableList.of(WEBSTART_WEB_XML, WEBSTART_JNLP_BODY,
-      WEBSTART_RESOURCES_FRAGMENT, WEBSTART_RESOURCE_FRAGMENT, WEBSTART_RESOURCES_DEF_FRAGMENT);
+      WEBSTART_JNLP_PROPS, WEBSTART_RESOURCES_FRAGMENT, WEBSTART_RESOURCE_FRAGMENT, WEBSTART_RESOURCES_DEF_FRAGMENT);
 
   @Component
   private MavenProject project;

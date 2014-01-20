@@ -1,0 +1,31 @@
+<%-- properties.jspf --%><%@ page pageEncoding="UTF-8" %><%!
+
+public static void registerProperty(final javax.servlet.http.HttpServletRequest request, final String realm, final String key, final String value) {
+  getProperties(request, realm).put(key, value);
+}
+
+public static java.util.Properties getProperties(final javax.servlet.http.HttpServletRequest request, final String realm) {
+  final String attr = "props_" + realm;
+  java.util.Properties p = (java.util.Properties) request.getAttribute(attr);
+  if (p == null) {
+    p = new java.util.Properties();
+    request.setAttribute(attr, p);
+  }
+  return p;
+}
+
+public static String encodeProperties(final javax.servlet.http.HttpServletRequest request, final String realm) {
+  try {
+    final java.io.ByteArrayOutputStream bos = new java.io.ByteArrayOutputStream();
+    try {
+      getProperties(request, realm).storeToXML(bos, realm);
+    } finally {
+      bos.close();
+    }
+    return java.net.URLEncoder.encode(new String(bos.toByteArray(), "UTF-8"), "UTF-8");
+  } catch (final java.io.IOException e) {
+    throw new RuntimeException(e);
+  }
+}
+
+%>

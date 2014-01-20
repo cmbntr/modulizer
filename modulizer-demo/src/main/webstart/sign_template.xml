@@ -11,5 +11,8 @@
     <j2se version="1.6+" href="http://java.sun.com/products/autodl/j2se" />
     <jar href="resources/modulizer-demo-launcher.jar" />
   </resources>
-  <application-desc main-class="ch.cmbntr.modulizer.bootstrap.Main" />
+  <application-desc main-class="ch.cmbntr.modulizer.bootstrap.Main">
+    <argument>--systemProperties</argument>
+    <argument>*</argument>
+  </application-desc>
 </jnlp>
