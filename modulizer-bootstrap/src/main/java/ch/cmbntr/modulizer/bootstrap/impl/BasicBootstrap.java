@@ -5,11 +5,14 @@ import static ch.cmbntr.modulizer.bootstrap.util.ModulizerIO.mkdir;
 import static ch.cmbntr.modulizer.bootstrap.util.ModulizerLog.initLogging;
 import static java.lang.Boolean.parseBoolean;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.management.ManagementFactory;
-import java.util.InvalidPropertiesFormatException;
+import java.net.URLDecoder;
+import java.util.Map.Entry;
+import java.util.Properties;
 import java.util.UUID;
 import java.util.concurrent.Future;
 
@@ -30,8 +33,10 @@ public class BasicBootstrap extends AbstractOperation implements Bootstrap {
   public void run() {
     final Pool handle = Resources.getPoolHandle();
     try {
-      establishContext();
+      establishInitialContext();
       performSecuritySettings();
+      handleSystemProperties();
+      sanitizeContext();
       initializeLogging();
       exportProperties();
       verboseLoading();
@@ -49,6 +54,22 @@ public class BasicBootstrap extends AbstractOperation implements Bootstrap {
     }
   }
 
+  private void establishInitialContext() {
+    final InputStream config = BasicBootstrap.class.getResourceAsStream(BootstrapContext.CONFIG_NAME);
+    if (config == null) {
+      warn("config not found: %s", BootstrapContext.CONFIG_NAME);
+    }
+    try {
+      final PropertiesContext ctx = PropertiesContext.empty().loadFromXML(config);
+      ctx.put(BootstrapContext.CONFIG_KEY_UUID, UUID.randomUUID().toString());
+      BootstrapContext.CURRENT.set(ctx);
+    } catch (final IOException e) {
+      throw new RuntimeException(e);
+    } finally {
+      closeQuietly(config);
+    }
+  }
+
   private void performSecuritySettings() {
     try {
       if (!parseBoolean(lookupContext(BootstrapContext.CONFIG_KEY_SECURITY_SKIP))) {
@@ -60,24 +81,21 @@ public class BasicBootstrap extends AbstractOperation implements Bootstrap {
     }
   }
 
-  private void establishContext() {
-    final InputStream config = BasicBootstrap.class.getResourceAsStream(BootstrapContext.CONFIG_NAME);
-    if (config == null) {
-      warn("config not found: %s", BootstrapContext.CONFIG_NAME);
+  private void handleSystemProperties() {
+    setSystemPropertiesFromArgs();
+    final BootstrapContext ctx = BootstrapContext.CURRENT.get();
+    if (ctx instanceof PropertiesContext) {
+      ((PropertiesContext) ctx).addSystemProperties();
     }
-    try {
-      final PropertiesContext ctx = PropertiesContext.empty().loadFromXML(config).addSystemProperties();
-      ctx.put(BootstrapContext.CONFIG_KEY_UUID, UUID.randomUUID().toString());
-      ctx.put(BootstrapContext.CONFIG_KEY_APP_ID, sanitizeAppId(ctx));
-      ctx.put(BootstrapContext.CONFIG_KEY_APP_DIR, sanitizeAppDir(ctx));
-      BootstrapContext.CURRENT.set(ctx);
+  }
 
-    } catch (final InvalidPropertiesFormatException e) {
-      throw new RuntimeException(e);
+  private void sanitizeContext() {
+    final BootstrapContext ctx = BootstrapContext.CURRENT.get();
+    ctx.put(BootstrapContext.CONFIG_KEY_APP_ID, sanitizeAppId(ctx));
+    try {
+      ctx.put(BootstrapContext.CONFIG_KEY_APP_DIR, sanitizeAppDir(ctx));
     } catch (final IOException e) {
-      throw new RuntimeException(e);
-    } finally {
-      closeQuietly(config);
+      warn("failed to sanitize %s: %s", BootstrapContext.CONFIG_KEY_APP_DIR, e);
     }
   }
 
@@ -128,22 +146,22 @@ public class BasicBootstrap extends AbstractOperation implements Bootstrap {
     preload(true, lookupContext(BootstrapContext.CONFIG_KEY_PRELOAD_GUI));
   }
 
-  private String sanitizeAppId(final PropertiesContext ctx) {
+  private String sanitizeAppId(final BootstrapContext ctx) {
     final String given = ctx.get(BootstrapContext.CONFIG_KEY_APP_ID);
     return given == null ? "unnamed-" + ctx.get(BootstrapContext.CONFIG_KEY_UUID) : given.trim();
   }
 
-  private String sanitizeAppDir(final PropertiesContext ctx) throws IOException {
+  private String sanitizeAppDir(final BootstrapContext ctx) throws IOException {
     final String given = ctx.get(BootstrapContext.CONFIG_KEY_APP_DIR);
     return ensureAppDir(given == null ? determineDefaultAppDir(ctx) : new File(given));
   }
 
-  private File determineBootstrapBaseDir(final PropertiesContext ctx) {
+  private File determineBootstrapBaseDir(final BootstrapContext ctx) {
     final String baseDir = ctx.get(BootstrapContext.CONFIG_KEY_BASE_DIR);
     return new File(baseDir == null ? System.getProperty("java.io.tmpdir") : baseDir);
   }
 
-  private File determineDefaultAppDir(final PropertiesContext ctx) {
+  private File determineDefaultAppDir(final BootstrapContext ctx) {
     final String appId = ctx.get(BootstrapContext.CONFIG_KEY_APP_ID);
     final File appDir = new File(determineBootstrapBaseDir(ctx), appId);
     final String slot = ctx.get(BootstrapContext.CONFIG_KEY_APP_DIR_SLOT);
@@ -191,6 +209,35 @@ public class BasicBootstrap extends AbstractOperation implements Bootstrap {
   private void clearContext() {
     final BootstrapContext ctxt = BootstrapContext.CURRENT.getAndSet(null);
     log("final context: %s", ctxt);
+  }
+
+  private static void setSystemPropertiesFromArgs() {
+    final String[] args = BootstrapContext.ARGS.get();
+    if (args != null && args.length > 1 && "--systemProperties".equals(args[0])) {
+      final Properties props = decodeProperties(args[1]);
+      for (final Entry<Object, Object> p : props.entrySet()) {
+        final String k = p.getKey().toString();
+        final String v = p.getValue().toString();
+        System.setProperty(k, v);
+        log("set system property %s to %s", k, v);
+      }
+    }
+  }
+
+  private static Properties decodeProperties(final String encoded) {
+    final Properties p = new Properties();
+    try {
+      final String dec = URLDecoder.decode(encoded.trim(), "UTF-8");
+      final InputStream is = new ByteArrayInputStream(dec.getBytes("UTF-8"));
+      try {
+        p.loadFromXML(is);
+      } finally {
+        is.close();
+      }
+    } catch (final IOException e) {
+      warn("properties decoding failed: %s", e);
+    }
+    return p;
   }
 
 }
