@@ -49,14 +49,14 @@ import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectHelper;
 import org.apache.maven.shared.jarsigner.JarSigner;
-import org.apache.maven.shared.jarsigner.JarSignerException;
 import org.apache.maven.shared.jarsigner.JarSignerRequest;
-import org.apache.maven.shared.jarsigner.JarSignerResult;
+import org.apache.maven.shared.utils.cli.CommandLineException;
+import org.apache.maven.shared.utils.cli.javatool.JavaToolException;
+import org.apache.maven.shared.utils.cli.javatool.JavaToolResult;
 import org.codehaus.plexus.util.DirectoryScanner;
 import org.codehaus.plexus.util.FileUtils;
 import org.codehaus.plexus.util.StringUtils;
 import org.codehaus.plexus.util.WriterFactory;
-import org.codehaus.plexus.util.cli.CommandLineException;
 import org.jboss.modules.Module;
 
 import ch.cmbntr.modulizer.bootstrap.Main;
@@ -523,7 +523,7 @@ public class ModulizeMojo extends AbstractModulizeMojo {
         final JarSignerRequest request = this.signing.signRequest(this.outputDirectory, a);
 
         try {
-          final JarSignerResult result = this.jarSigner.execute(request);
+          final JavaToolResult result = this.jarSigner.execute(request);
           final CommandLineException signException = result.getExecutionException();
           final int signExitCode = result.getExitCode();
           if (signException != null) {
@@ -532,7 +532,7 @@ public class ModulizeMojo extends AbstractModulizeMojo {
           if (signExitCode > 0) {
             throw new MojoExecutionException("signing returned with exit code: " + signExitCode);
           }
-        } catch (final JarSignerException e) {
+        } catch (final JavaToolException e) {
           failSignature(e);
         }
       }

@@ -28,6 +28,8 @@ public class SigningInfo extends ConfigBase {
   private String storetype = "pkcs12";
   private String keystore;
   private String storepass;
+  private String tsaLocation;
+  private String tsaAlias;
 
   private String[] arguments;
   private Properties signRequestProperties = new Properties();
@@ -58,6 +60,8 @@ public class SigningInfo extends ConfigBase {
     request.setStoretype(this.storetype);
     request.setKeystore(this.keystore);
     request.setStorepass(this.storepass);
+    request.setTsaAlias(this.tsaAlias);
+    request.setTsaLocation(this.tsaLocation);
     request.setArguments(this.arguments);
     setBeanProperties(request);
     return request;
@@ -99,6 +103,7 @@ public class SigningInfo extends ConfigBase {
     return super.prepareToStringHelper().add("alias", this.alias)
         .add("keypass", this.keypass == null ? null : PASSWORD_MASK).add("keystore", this.keystore)
         .add("storepass", this.storepass == null ? null : PASSWORD_MASK).add("arguments", this.arguments)
+        .add("tsaAlias", this.tsaAlias).add("tsaLocation", this.tsaLocation)
         .add("signRequestProperties", this.signRequestProperties);
   }
 
