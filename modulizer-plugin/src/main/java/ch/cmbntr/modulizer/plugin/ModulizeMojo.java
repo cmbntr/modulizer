@@ -502,6 +502,7 @@ public class ModulizeMojo extends AbstractModulizeMojo {
     entries.put("Main-Class", Main.class.getName());
     entries.put("Application-Name", determineApplicationName());
     entries.put("Permissions", "all-permissions");
+    entries.put("Trusted-Library", "true");
     entries.put("Codebase", "*");
     if (!this.includeModulesInLauncher) {
       entries.put("Class-Path", determineModulesArtifactName());
