@@ -162,7 +162,7 @@
       <dependency>
         <groupId>org.codehaus.plexus</groupId>
         <artifactId>plexus-utils</artifactId>
-        <version>3.0.10</version>
+        <version>3.0.15</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
@@ -198,8 +198,8 @@
     <source.version>1.6</source.version>
     <target.version>1.6</target.version>
 
-    <version.maven>3.0.5</version.maven>
-    <version.mavenPlugin>3.1</version.mavenPlugin>
+    <version.maven>3.1.1</version.maven>
+    <version.mavenPlugin>3.2</version.mavenPlugin>
     <version.plexus>1.5.5</version.plexus>
   </properties>
 
