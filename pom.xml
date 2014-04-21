@@ -45,7 +45,7 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-shade-plugin</artifactId>
-          <version>2.0</version>
+          <version>2.2</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
@@ -103,7 +103,7 @@
       <dependency>
         <groupId>com.google.guava</groupId>
         <artifactId>guava</artifactId>
-        <version>16.0</version>
+        <version>17.0</version>
       </dependency>
       <dependency>
         <groupId>org.jdom</groupId>
@@ -149,7 +149,7 @@
       <dependency>
         <groupId>org.apache.maven.shared</groupId>
         <artifactId>maven-jarsigner</artifactId>
-        <version>1.3.1</version>
+        <version>1.3.2</version>
       </dependency>
 
       <!-- Plexus -->
@@ -166,7 +166,7 @@
       <dependency>
         <groupId>org.codehaus.plexus</groupId>
         <artifactId>plexus-utils</artifactId>
-        <version>3.0.15</version>
+        <version>3.0.17</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
@@ -202,7 +202,7 @@
     <source.version>1.6</source.version>
     <target.version>1.6</target.version>
 
-    <version.maven>3.1.1</version.maven>
+    <version.maven>3.2.1</version.maven>
     <version.mavenPlugin>3.2</version.mavenPlugin>
     <version.plexus>1.5.5</version.plexus>
   </properties>
