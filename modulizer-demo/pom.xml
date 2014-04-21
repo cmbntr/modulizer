@@ -80,6 +80,10 @@
                 <value>%{java.home}/lib/jfxrt.jar</value>
               </property>
               <property>
+                <name>modulizer.filetree.copy.jfxrt.fallback</name>
+                <value>%{modulizer.bootstrap.app.dir}/javafx/rt/main/empty.jar</value>
+              </property>
+              <property>
                 <name>modulizer.filetree.copy.jfxrt.dest</name>
                 <value>%{modulizer.bootstrap.app.dir}/javafx/rt/main/jfxrt.jar</value>
               </property>
@@ -129,6 +133,7 @@
                   </moduleDependency>
                   <moduleDependency>
                     <name>javafx.rt</name>
+                    <slot>${javafx.rt.slot}</slot>
                   </moduleDependency>
                   <moduleDependency>
                     <name>logging</name>
@@ -218,5 +223,27 @@
       <version>4.2</version>
     </dependency>
   </dependencies>
+
+  <profiles>
+    <profile>
+      <id>preJDK8</id>
+      <activation>
+        <jdk>(,1.7)</jdk>
+      </activation>
+      <properties>
+        <javafx.rt.slot>main</javafx.rt.slot>
+      </properties>
+    </profile>
+
+    <profile>
+      <id>postJDK8</id>
+      <activation>
+        <jdk>[1.8,)</jdk>
+      </activation>
+      <properties>
+        <javafx.rt.slot>included</javafx.rt.slot>
+      </properties>
+    </profile>
+  </profiles>
 
 </project>
