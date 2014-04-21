@@ -27,11 +27,12 @@ import org.eclipse.jgit.transport.Transport;
 import org.eclipse.jgit.transport.TransportBundleStream;
 import org.eclipse.jgit.transport.URIish;
 
+import ch.cmbntr.modulizer.bootstrap.util.ModulizerLog;
 import ch.cmbntr.modulizer.bootstrap.util.Resources;
 
 public class Restore {
 
-  private static final Logger LOG = Logger.getAnonymousLogger();
+  private static final Logger LOG = ModulizerLog.getLogger();
 
   private Restore() {
     super();

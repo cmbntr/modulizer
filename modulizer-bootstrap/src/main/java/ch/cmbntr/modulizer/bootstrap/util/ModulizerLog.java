@@ -20,7 +20,7 @@ import ch.cmbntr.modulizer.bootstrap.BootstrapContext;
 
 public class ModulizerLog {
 
-  private static final Logger LOG = Logger.getAnonymousLogger();
+  private static final Logger LOG = createLogger();
 
   static {
     initLogging(System.getProperty(BootstrapContext.CONFIG_KEY_LOGGING));
@@ -28,6 +28,20 @@ public class ModulizerLog {
 
   private ModulizerLog() {
     super();
+  }
+
+  private static Logger createLogger() {
+    try {
+      return Logger.getAnonymousLogger();
+
+    } catch (RuntimeException e) {
+      // workaround, for certain JDKs which can throw NPE on #getAnonymousLogger
+      return Logger.getLogger("ch.cmbntr.modulizer");
+    }
+  }
+
+  public static Logger getLogger() {
+    return LOG;
   }
 
   public static void log(final String msg, final Object... args) {

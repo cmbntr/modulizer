@@ -22,9 +22,11 @@ import org.eclipse.jgit.lib.TextProgressMonitor;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.transport.BundleWriter;
 
+import ch.cmbntr.modulizer.bootstrap.util.ModulizerLog;
+
 public class Snapshot {
 
-  private static final Logger LOG = Logger.getAnonymousLogger();
+  private static final Logger LOG = ModulizerLog.getLogger();
 
   private Snapshot() {
     super();
