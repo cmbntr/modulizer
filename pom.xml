@@ -30,6 +30,10 @@
     <tag>HEAD</tag>
   </scm>
 
+  <prerequisites>
+    <maven>3.0</maven>
+  </prerequisites>
+
   <build>
     <pluginManagement>
       <plugins>

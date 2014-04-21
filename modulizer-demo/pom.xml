@@ -22,6 +22,10 @@
     <sign.keystore>${basedir}/src/main/demo_keystore.p12</sign.keystore>
   </properties>
 
+  <prerequisites>
+    <maven>3.0</maven>
+  </prerequisites>
+
   <build>
     <pluginManagement>
       <plugins>
