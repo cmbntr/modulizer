@@ -36,6 +36,8 @@ public class FileTreePrepare extends AbstractPrepare {
 
   private static final Pattern COPY_SRC_PATTERN = Pattern.compile("modulizer\\.filetree\\.copy\\.([^.]*)\\.src");
 
+  private static final String COPY_FALLBACK_TEMPLATE = "modulizer.filetree.copy.%s.fallback";
+
   private static final String COPY_DEST_TEMPLATE = "modulizer.filetree.copy.%s.dest";
 
   private static final long EXTRA_COPY_HASHING_TIMEOUT_MINUTES = 5L;
@@ -156,13 +158,15 @@ public class FileTreePrepare extends AbstractPrepare {
       if (m.matches()) {
         final String jobLabel = m.group(1);
         final String src = lookupContextInterpolated(key);
+        final String srcFallback = lookupContextInterpolated(format(COPY_FALLBACK_TEMPLATE, jobLabel));
         final String dest = lookupContextInterpolated(format(COPY_DEST_TEMPLATE, jobLabel));
         if (dest == null) {
           warn("missing dest for copy job '%s'", jobLabel);
 
         } else {
           try {
-            jobsByDest.put(copyDestinationToFile(dest), Collections.singletonMap(jobLabel, copySourceToURL(src)));
+            final Map<String, URL> job = Collections.singletonMap(jobLabel, copySourceToURL(src, srcFallback));
+            jobsByDest.put(copyDestinationToFile(dest), job);
           } catch (final RuntimeException e) {
             failExtraCopyJob(jobLabel, e);
           }
@@ -172,10 +176,10 @@ public class FileTreePrepare extends AbstractPrepare {
     return jobsByDest;
   }
 
-  private static URL copySourceToURL(final String src) {
+  private static URL copySourceToURL(final String src, String srcFallback) {
     try {
-      final File f = new File(src).getAbsoluteFile();
-      if (f.canRead()) {
+      final File f = tryFindReadableFile(src, srcFallback);
+      if (f != null) {
         return f.toURI().toURL();
       } else {
         log("copy job source is not a readable file, try as URL");
@@ -185,6 +189,16 @@ public class FileTreePrepare extends AbstractPrepare {
     } catch (final MalformedURLException e) {
       throw new RuntimeException("could not create source URL for copy job, src=" + src, e);
     }
+  }
+
+  private static File tryFindReadableFile(String... paths) {
+    for (String path : paths) {
+      final File f = new File(path).getAbsoluteFile();
+      if (f.canRead()) {
+        return f;
+      }
+    }
+    return null;
   }
 
   private File copyDestinationToFile(final String dest) {
